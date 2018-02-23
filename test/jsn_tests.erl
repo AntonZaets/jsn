@@ -185,6 +185,15 @@ get_test_() ->
     SrcObjects = [SrcMap, SrcPlist, SrcEep18, SrcStruct],
     [test_get(Src) || Src <- SrcObjects].
 
+get_with_asterisk_test_() ->
+    Formats = [map, proplist, eep18, struct],
+    SrcPath = [{<<"foo">>, []},
+               {{<<"foo">>, 1, <<"bar">>}, <<"bar1">>},
+               {{<<"foo">>, 2, <<"bar">>}, <<"bar2">>}],
+    SrcObjects = [jsn:new(SrcPath, [{format, Fmt}]) || Fmt <- Formats],
+    Path = {<<"foo">>, '*', <<"bar">>},
+    Expected = [<<"bar1">>, <<"bar2">>],
+    [?_assertEqual(Expected, jsn:get(Path, Src)) || Src <- SrcObjects].
 
 get_list_test_() ->
     Src = jsn:new([{<<"foo">>, <<"bar">>},

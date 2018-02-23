@@ -384,7 +384,8 @@ path_elements(list, [Key | Rest], Acc) when is_atom(Key)  ->
     path_elements(list, Rest, [atom_to_binary(Key, utf8) | Acc]);
 path_elements(tuple, [Index | Rest], Acc) when is_integer(Index), Index > 0 ->
     path_elements(tuple, Rest, [Index | Acc]);
-path_elements(tuple, [Index | Rest], Acc) when Index =:= first; Index =:= last ->
+path_elements(tuple, [Index | Rest], Acc)
+  when Index =:= first; Index =:= last; Index =:= '*' ->
     path_elements(tuple, Rest, [Index | Acc]);
 path_elements(Type, Path, Acc) ->
     erlang:error(badarg, [Type, Path, Acc]).
@@ -862,6 +863,10 @@ set_nth(Index, _A, _V) ->
 %%------------------------------------------------------------------------------
 keys_get([], Object, _Default) ->
     Object;
+keys_get(['*' | Rest], Object, Default) when is_list(Object) ->
+    [keys_get(Rest, ListEl, Default) || ListEl <- Object];
+keys_get(['*' | _Rest], _Object, Default) ->
+    Default;
 keys_get([Key | Rest], Object, Default) ->
     keys_get(Rest, key_get(Key, Object, Default), Default).
 
