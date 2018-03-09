@@ -1,5 +1,5 @@
 %%------------------------------------------------------------------------------
-%% jsn - Functions for interacting with decoded JSON objects 
+%% jsn - Functions for interacting with decoded JSON objects
 %%
 %% @author Nicholas Lundgaard <nalundgaard@gmail.com>
 %%------------------------------------------------------------------------------
@@ -53,7 +53,7 @@
 -define(DEFAULT_FORMAT, map).
 
 %% guard for matching a JSON string, boolean, number, null
--define(IS_SIMPLE_JSON_TERM(X), 
+-define(IS_SIMPLE_JSON_TERM(X),
         is_binary(X);
         is_boolean(X);
         is_number(X);
@@ -84,7 +84,7 @@ new(L) ->
     new(L, []).
 
 
--spec new(path_value_tuple() | path_value_tuples(), 
+-spec new(path_value_tuple() | path_value_tuples(),
           jsn_options()) -> json_object().
 %%------------------------------------------------------------------------------
 %% @doc given a path, value tuple or a list of such tuples, return a new
@@ -97,7 +97,7 @@ new(L, Options) when is_list(L) ->
     set_list(L, empty_object(Options)).
 
 
--spec get(path(), json_object() | json_array()) -> 
+-spec get(path(), json_object() | json_array()) ->
          json_term() | undefined.
 %%------------------------------------------------------------------------------
 %% @doc given a path and a json_object, if the path is in the object, return
@@ -145,7 +145,7 @@ get_list(PathList, Object, Default) ->
               PathList).
 
 
--spec find(path(), 
+-spec find(path(),
            SearchTerm :: json_term(),
            json_array()) -> json_array().
 %%------------------------------------------------------------------------------
@@ -263,8 +263,8 @@ delete_if_equal(Path, Value, Object) ->
            SrcObject :: json_object() | json_array(),
            DstObjects :: json_object() | json_array()) -> json_array().
 %%------------------------------------------------------------------------------
-%% @doc given a list of paths, a source object/array and one or more destination 
-%% objects/arrays, copy the path-value pairs from the source to the 
+%% @doc given a list of paths, a source object/array and one or more destination
+%% objects/arrays, copy the path-value pairs from the source to the
 %% destination(s), and return a list with the results
 %%
 %% if the path does not exist in object, the destination(s) will have the
@@ -283,7 +283,7 @@ copy(PathList, Src, Dst) ->
       Mutator :: fun((json_term() | undefined) -> json_term())) -> json_array().
 %%------------------------------------------------------------------------------
 %% @doc given a list of paths, a source json_object and one or more destination
-%% json_objects, retrieve the value from the source object at the current path, 
+%% json_objects, retrieve the value from the source object at the current path,
 %% pass it through the mutator function, and store it on the destination
 %% object(s) at the same path; return the destination object(s)
 %%
@@ -362,7 +362,7 @@ path_transform(Transforms, Object) ->
 
 -spec path_elements(path()) -> path_elements().
 %%------------------------------------------------------------------------------
-%% @doc given a path, parse it into an ordered list of json keys (binary) and/or 
+%% @doc given a path, parse it into an ordered list of json keys (binary) and/or
 %% array indexes
 %%------------------------------------------------------------------------------
 path_elements(Path) when is_binary(Path) ->
@@ -415,7 +415,7 @@ equal(Paths, OriginalObject, OtherObjectOrObjects) ->
      (Paths :: paths(),
       OriginalObject :: json_object() | json_array(),
       OtherObjectOrObjects :: json_object() | json_array(),
-      Mode :: soft | hard) -> 
+      Mode :: soft | hard) ->
      ok | {error, {not_equal, Message :: binary() }}.
 %%------------------------------------------------------------------------------
 %% @doc given a list of fields, an original json_object, and a single or
@@ -520,7 +520,7 @@ is_subset(_A, _B) ->
 as_map(M) when is_map(M) ->
     maps:map(fun(Key, Value) when ?IS_JSON_KEY(Key) ->
                  as_map(Value);
-                (Key, Value) -> erlang:error(badarg, [Key, Value]) 
+                (Key, Value) -> erlang:error(badarg, [Key, Value])
              end,
              M);
 as_map({struct, P}) when is_list(P) ->
@@ -559,7 +559,7 @@ from_map(T) ->
 %% @doc convert a JSON term with map-format JSON objects into an identical JSON
 %% term with all of the JSON objects converted into the specified object format
 %%------------------------------------------------------------------------------
-from_map(M, Opts) -> 
+from_map(M, Opts) ->
     from_map_impl(M, get_format(Opts), Opts).
 
 
@@ -586,7 +586,7 @@ as_proplist([{H}|T]) when is_list(H) ->
 as_proplist([{_K, _V}|_T] = Plist) ->
     lists:map(fun({Key, Value}) when ?IS_JSON_KEY(Key) ->
                   {Key, as_proplist(Value)};
-                 (Element) -> erlang:error(badarg, [Element]) 
+                 (Element) -> erlang:error(badarg, [Element])
               end,
               Plist);
 as_proplist(T) when is_list(T) ->
@@ -673,7 +673,7 @@ from_proplist_impl([{_,_}|_] = P, map, Opts) ->
 from_proplist_impl([{_,_}|_] = P0, Format, Opts) ->
     P = lists:map(fun({Key, Value}) when ?IS_JSON_KEY(Key) ->
                       {Key, from_proplist_impl(Value, Format, Opts)};
-                     (Elem) -> erlang:error(badarg, [Elem]) 
+                     (Elem) -> erlang:error(badarg, [Elem])
                   end,
                   P0),
     case Format of
@@ -696,7 +696,7 @@ from_proplist_impl(T, Format, Opts) ->
 from_map_impl(M, map, Opts) when is_map(M) ->
     maps:map(fun(Key, Value) when ?IS_JSON_KEY(Key) ->
                  from_map_impl(Value, map, Opts);
-                (Key, Value) -> erlang:error(badarg, [Key, Value]) 
+                (Key, Value) -> erlang:error(badarg, [Key, Value])
              end,
              M);
 from_map_impl(M, Format, Opts) when is_map(M) ->
@@ -749,7 +749,7 @@ empty_object(Options) ->
 
 
 -spec keys_set(path_elements(),
-               Object :: json_object() | json_array(), 
+               Object :: json_object() | json_array(),
                Value :: json_term() | jsn__delete) ->
               json_object() | json_array().
 %%------------------------------------------------------------------------------
@@ -770,7 +770,7 @@ keys_set(_Keys, Term, _Value) ->
 
 
 -spec keys_set(path_elements(),
-               Object :: json_object() | json_array(), 
+               Object :: json_object() | json_array(),
                Value :: json_term() | jsn__delete,
                Empty :: json_object()) -> json_object() | json_array().
 %%------------------------------------------------------------------------------
@@ -779,6 +779,10 @@ keys_set(_Keys, Term, _Value) ->
 %%------------------------------------------------------------------------------
 keys_set([], _Object, Value, _Empty) ->
     Value;
+keys_set(['*' | Rest], Object, Value, Empty) when is_list(Object) ->
+    [keys_set(Rest, ListEl, Value, Empty) || ListEl <- Object];
+keys_set(['*' | _Rest], Object, _Value, _Empty) ->
+    throw({error, {not_an_array, Object}});
 keys_set(Keys, {struct, P}, Value, Empty) when is_list(P) ->
     {struct, keys_set(Keys, P, Value, Empty)};
 keys_set(Keys, {P}, Value, Empty) when is_list(P) ->
@@ -787,35 +791,35 @@ keys_set([Key | Rest], Object, Value, Empty)
   when is_binary(Key), (is_list(Object) orelse is_map(Object)) ->
     case key_get(Key, Object, jsn__undefined) of
         E when E =:= jsn__undefined; E =:= Empty ->
-            key_set(Key, Object, keys_set(Rest, Empty, Value, Empty)); 
+            key_set(Key, Object, keys_set(Rest, Empty, Value, Empty));
         SubValue ->
             key_set(Key, Object, keys_set(Rest, SubValue, Value, Empty))
     end;
-keys_set([Index | Rest], A, Value, Empty) when is_integer(Index); 
+keys_set([Index | Rest], A, Value, Empty) when is_integer(Index);
                                                Index =:= first;
                                                Index =:= last ->
     set_nth(Index, A, keys_set(Rest, get_nth(Index, A, Empty), Value, Empty)).
 
 
 -spec key_set(binary(),
-              Object :: json_proplist(), 
+              Object :: json_proplist(),
               Value :: json_term() | jsn__delete) -> json_proplist().
 %%------------------------------------------------------------------------------
 %% @private given a key, a json_object, and a value, store the value in the
-%% object at the key; if the value is a deletion, remove the key, value pair, 
+%% object at the key; if the value is a deletion, remove the key, value pair,
 %% if it exists
 %%------------------------------------------------------------------------------
 key_set(Key, M, jsn__delete) when is_binary(Key) andalso is_map(M) ->
     maps:remove(Key, maps:remove(safe_binary_to_atom(Key), M));
-key_set(Key, M, Value) when is_binary(Key) andalso is_map(M) -> 
+key_set(Key, M, Value) when is_binary(Key) andalso is_map(M) ->
     maps:put(Key, Value, M);
-key_set(Key, [], jsn__delete) when is_binary(Key) -> 
+key_set(Key, [], jsn__delete) when is_binary(Key) ->
     [];
-key_set(Key, [{_,_}|_] = P, jsn__delete) when is_binary(Key) -> 
+key_set(Key, [{_,_}|_] = P, jsn__delete) when is_binary(Key) ->
     lists:keydelete(Key, 1, lists:keydelete(safe_binary_to_atom(Key), 1, P));
-key_set(Key, [], Value) when is_binary(Key) -> 
+key_set(Key, [], Value) when is_binary(Key) ->
     [{Key, Value}];
-key_set(Key, [{_,_}|_] = P, Value) when is_binary(Key), is_list(P) -> 
+key_set(Key, [{_,_}|_] = P, Value) when is_binary(Key), is_list(P) ->
     lists:keystore(Key, 1, P, {Key, Value});
 key_set(_Key, Term, _Value) ->
     throw({error, {not_an_object, Term}}).
@@ -846,10 +850,10 @@ set_nth(Index, A, V) when Index > 0, Index =< length(A) ->
     {A1, A2} = lists:split(Index - 1, A),
     lists:concat([A1, [V|tl(A2)]]);
 set_nth(Index, A, V) when Index - 1 =:= length(A) ->
-    lists:reverse([V|lists:reverse(A)]); 
+    lists:reverse([V|lists:reverse(A)]);
 set_nth(_Index, Term, _V) when not(is_list(Term)) ->
     throw({error, {not_an_array, Term}});
-set_nth(Index, _A, _V) -> 
+set_nth(Index, _A, _V) ->
     throw({error, {invalid_array_index, Index}}).
 
 
@@ -857,7 +861,7 @@ set_nth(Index, _A, _V) ->
                json_term(),
                Default :: term()) -> json_term() | term().
 %%------------------------------------------------------------------------------
-%% @private given a list of path elements, and a json term, iteratively 
+%% @private given a list of path elements, and a json term, iteratively
 %% lookup the path elements in the object and return the value found at the
 %% last key, if present; otherwise, return the default.
 %%------------------------------------------------------------------------------
@@ -885,7 +889,7 @@ key_get(Key, Object) ->
               Default :: term()) -> json_term() | term().
 %%------------------------------------------------------------------------------
 %% @private get the value of a key from a json object or json proplist object,
-%% or return undefined; this is function does not support nested keys (i.e., 
+%% or return undefined; this is function does not support nested keys (i.e.,
 %% paths), only single, flat keys
 %%------------------------------------------------------------------------------
 key_get(Key, M, Default) when is_map(M) ->
@@ -905,7 +909,7 @@ key_get(Index, A, Default) when is_integer(Index); Index =:= first; Index =:= la
     get_nth(Index, A, Default);
 key_get(Key, [{_,_}|_] = P, Default) when is_binary(Key) ->
     case lists:keyfind(Key, 1, P) of
-        false -> 
+        false ->
             case lists:keyfind(safe_binary_to_atom(Key), 1, P) of
                 false -> Default;
                 {_, Value0} -> Value0
@@ -931,7 +935,7 @@ get_nth(last, [H|_] = A, _Default) when ?IS_SIMPLE_JSON_TERM(H) ->
     hd(lists:reverse(A));
 get_nth(Index, A, _Default) when Index > 0, Index =< length(A) ->
     lists:nth(Index, A);
-get_nth(_Index, _A, Default) -> Default. 
+get_nth(_Index, _A, Default) -> Default.
 
 
 -spec path_equal(Path :: path(),
@@ -964,9 +968,9 @@ path_equal(Path, OriginalObject, OtherObject, _HardMode) ->
       Other :: json_object() | json_array(),
       Mode :: soft | hard) -> ok | {error, {not_equal, Message :: binary()}}.
 %%------------------------------------------------------------------------------
-%% @private given a list of fields, an original json_object, and another 
+%% @private given a list of fields, an original json_object, and another
 %% json_object, verify that each path in each of the other object has the same
-%% value as the original does at the same path, for each path in the list of 
+%% value as the original does at the same path, for each path in the list of
 %% paths; if so, return ok; otherwise, return an error tuple with the error
 %% type and a summary of mismatches for the first mismatched object
 %%
@@ -984,7 +988,7 @@ object_equal(Paths, OriginalObject, OtherObject, Mode) ->
         [] -> ok;
         _ ->
             MismatchedPaths = binary_join(lists:reverse(Errors), <<", ">>),
-            ErrMsg = <<"mismatch of requested and existing field(s): ", 
+            ErrMsg = <<"mismatch of requested and existing field(s): ",
                        MismatchedPaths/binary>>,
             {error, {not_equal, ErrMsg}}
     end.
@@ -1017,12 +1021,12 @@ to_binary(I) when is_integer(I)   -> integer_to_binary(I).
 %% @private convert the path to binary
 %%------------------------------------------------------------------------------
 path_to_binary(Path) when is_binary(Path); is_atom(Path) -> to_binary(Path);
-path_to_binary(T) when is_tuple(T) -> path_to_binary(tuple_to_list(T)); 
+path_to_binary(T) when is_tuple(T) -> path_to_binary(tuple_to_list(T));
 path_to_binary([]) -> <<>>;
 path_to_binary([H|T]) -> path_to_binary(T, H).
 
 path_to_binary([], Acc) -> Acc;
-path_to_binary([Key0|Rest], Acc) -> 
+path_to_binary([Key0|Rest], Acc) ->
     Key = to_binary(Key0),
     path_to_binary(Rest, <<Acc/binary, ".", Key/binary>>).
 
@@ -1037,5 +1041,5 @@ binary_join([H|T], Sep) ->
     binary_join(T, Sep, H).
 
 binary_join([], _Sep, Acc) -> Acc;
-binary_join([H|T], Sep, Acc) when is_binary(H) -> 
+binary_join([H|T], Sep, Acc) when is_binary(H) ->
     binary_join(T, Sep, <<Acc/binary, Sep/binary, H/binary>>).

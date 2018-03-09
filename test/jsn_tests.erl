@@ -185,15 +185,16 @@ get_test_() ->
     SrcObjects = [SrcMap, SrcPlist, SrcEep18, SrcStruct],
     [test_get(Src) || Src <- SrcObjects].
 
-get_with_asterisk_test_() ->
+get_asterisk_test_() ->
     Formats = [map, proplist, eep18, struct],
     SrcPath = [{<<"foo">>, []},
-               {{<<"foo">>, 1, <<"bar">>}, <<"bar1">>},
-               {{<<"foo">>, 2, <<"bar">>}, <<"bar2">>}],
+               {{<<"foo">>, 1, <<"bar">>}, <<"baz1">>},
+               {{<<"foo">>, 2, <<"bar">>}, <<"baz2">>}],
     SrcObjects = [jsn:new(SrcPath, [{format, Fmt}]) || Fmt <- Formats],
     Path = {<<"foo">>, '*', <<"bar">>},
-    Expected = [<<"bar1">>, <<"bar2">>],
-    [?_assertEqual(Expected, jsn:get(Path, Src)) || Src <- SrcObjects].
+    Expected = [<<"baz1">>, <<"baz2">>],
+    [?_assertEqual(Expected, jsn:get(Path, Src)) || Src <- SrcObjects]
+    ++ [?_assertEqual(undefined, jsn:get(Path, #{<<"foo">> => <<"bar">>}))].
 
 get_list_test_() ->
     Src = jsn:new([{<<"foo">>, <<"bar">>},
@@ -281,6 +282,16 @@ set_test_() ->
      ?_assertThrow({error, {not_an_array, _}}, jsn:set({<<"k">>, 1}, [{<<"k">>, 1}], <<"v">>)),
      ?_assertThrow({error, {not_an_array, _}}, jsn:set({<<"k">>, 1}, #{<<"k">> => 1}, <<"v">>))].
 
+set_asterisk_test_() ->
+    Formats = [map, proplist, eep18, struct],
+    SrcPath = [{<<"foo">>, []},
+               {{<<"foo">>, 1, <<"bar">>}, <<"not_baz">>},
+               {{<<"foo">>, 2, <<"bar">>}, <<"not_baz">>}],
+    SrcObjects = [jsn:new(SrcPath, [{format, Fmt}]) || Fmt <- Formats],
+    Path = {<<"foo">>, '*', <<"bar">>},
+    Expected = [<<"baz">>, <<"baz">>],
+    [?_assertEqual(Expected, jsn:get(Path, jsn:set(Path, Src, <<"baz">>))) || Src <- SrcObjects]
+    ++ [?_assertThrow({error, {not_an_array, _}}, jsn:set(Path, #{<<"foo">> => <<"bar">>}, <<"baz">>))].
 
 set_list_test_() ->
     EmptyObject = jsn:new([], [{format, map}]),
@@ -324,6 +335,16 @@ delete_test_() ->
      ?_assertThrow({error, {not_an_array, _}}, jsn:delete({1}, #{<<"k">> => 1})),
      ?_assertThrow({error, {not_an_array, _}}, jsn:delete({<<"k">>, 1}, #{<<"k">> => 1}))].
 
+delete_asterisk_test_() ->
+    Formats = [map, proplist, eep18, struct],
+    SrcPath = [{<<"foo">>, []},
+               {{<<"foo">>, 1, <<"bar">>}, [1, 2, 2]},
+               {{<<"foo">>, 2, <<"bar">>}, [3, 4, 4]}],
+    SrcObjects = [jsn:new(SrcPath, [{format, Fmt}]) || Fmt <- Formats],
+    Path = {<<"foo">>, '*', <<"bar">>},
+    DelPath = {<<"foo">>, '*', <<"bar">>, last},
+    Expected = [[1, 2], [3, 4]],
+    [?_assertEqual(Expected, jsn:get(Path, jsn:delete(DelPath, Src))) || Src <- SrcObjects].
 
 delete_list_test_() ->
     Base = jsn:new([{<<"foo">>, <<"bar">>},
